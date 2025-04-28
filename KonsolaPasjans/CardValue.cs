@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KonsolaPasjans
+﻿namespace KonsolaPasjans
 {
     public enum CardValue
     {
+		None = 0,
 		Ace = 1,
 		Two = 2,
 		Three = 3,

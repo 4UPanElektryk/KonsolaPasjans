@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KonsolaPasjans
 {
@@ -21,7 +17,7 @@ namespace KonsolaPasjans
 		{
 			return $"{Value} of {Color}";
 		}
-		public void Display(int x, int y)
+		public virtual void Display(int x, int y)
 		{
 			char color = ColorToChar(Color);
 			string val = !((int)Value == 1 || (int)Value > 10) ? ((int)Value).ToString() : (Value.ToString()[0]).ToString();
