@@ -41,5 +41,18 @@ namespace KonsolaPasjans
 				Console.SetCursorPosition(x, y++); Console.Write($"╚═════╝");
 			}
 		}
+		public override bool IsValidTarget(Card card)
+		{
+			if (this.IsFaceUp)
+			{
+				return false;
+			}
+
+			if (card.Color == this.Color && card.Value == CardValue.Ace)
+			{
+				return true;
+			}
+			return false;
+		}
 	}
 }

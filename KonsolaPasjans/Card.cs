@@ -58,5 +58,19 @@ namespace KonsolaPasjans
 					throw new ArgumentOutOfRangeException(nameof(color), color, null);
 			}
 		}
+		public virtual bool IsValidTarget(Card card)
+		{
+			bool isLocalRed = (int)this.Color % 2 == 0;
+			bool isTargetRed = (int)card.Color % 2 == 0;
+			if (isLocalRed != isTargetRed)
+			{
+				if (this.Value > card.Value)
+				{
+					return true;
+				}
+				return false;
+			}
+			return false;
+		}
 	}
 }

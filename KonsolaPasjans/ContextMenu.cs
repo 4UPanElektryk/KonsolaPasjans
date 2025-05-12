@@ -6,6 +6,11 @@ namespace KonsolaPasjans
     {
         public static int SummonAt(int x, int y,string Title, string[] options, ConsoleColor color = ConsoleColor.White)
         {
+			int max = 0;
+			foreach (var item in options)
+			{
+				max = item.Length > max ? item.Length : max;
+			}
 			ConsoleColor defaultColor = Console.ForegroundColor;
             int selectedOption = 0;
 			while (true)
@@ -19,12 +24,12 @@ namespace KonsolaPasjans
 					if (i == selectedOption)
 					{
 						Console.ForegroundColor = color;
-						Console.Write($"▶ {options[i]}");
+						Console.Write($"▶ {options[i].PadLeft(max)}");
 					}
 					else
 					{
 						Console.ForegroundColor = defaultColor;
-						Console.Write($"  {options[i]}");
+						Console.Write($"  {options[i].PadLeft(max)}");
 					}
 				}
 				ConsoleKeyInfo key = Console.ReadKey(true);
