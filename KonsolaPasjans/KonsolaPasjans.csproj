@@ -49,6 +49,7 @@
     <Compile Include="CardValue.cs" />
     <Compile Include="ContextMenu.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Move.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

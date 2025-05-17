@@ -11,10 +11,12 @@ namespace KonsolaPasjans
 		private List<Card> Deck { get; set; } = new List<Card>();
 		private List<Card> DiscardPile { get; set; } = new List<Card>();
 		private List<Card>[] cards = new List<Card>[7];
+		private List<Move> MoveHistory = new List<Move>();
 		private CardValue[] foundation = new CardValue[4];
 		public bool IsHardDifficulty = false;
 		private int selected = 0;
 		private int previousCardSelection = -1;
+		private int previousCardCount = 0;
 		private bool isDeckSelected { get { return selected == 0; } }
 		private bool isDiscardSelected { get { return selected == 1; } }
 		private bool areCardsSelected { get { return selected > 5;  } }
@@ -83,7 +85,7 @@ namespace KonsolaPasjans
 				else if (key.Key == ConsoleKey.Spacebar || key.Key == ConsoleKey.Enter)
 				{
 					Debug.WriteLine($"Selected {selected}");
-					RunAction(selected);
+					RunAction();
 				}
 				#endregion
 				#region Logic
@@ -100,7 +102,134 @@ namespace KonsolaPasjans
 				Display();
 			}
 		}
-		private bool FindIfValidTarget() { return true; }
+		private void DoMove(Move move)
+		{
+			Card[] movedcards = null;
+			if (move.From == 0)
+			{
+				//Deck
+				movedcards = new Card[] { Deck[0] };
+				Deck.RemoveAt(0);
+			}
+			else if (move.From > 5)
+			{
+				// Column
+				movedcards = cards[move.From - 6].Skip(cards[move.From - 6].Count - move.Cards).ToArray();
+				cards[move.From - 6].RemoveRange(cards[move.From - 6].Count - move.Cards, move.Cards);
+			}
+			else if (move.From > 1)
+			{
+				// Foundation (Only 1 card)
+				movedcards = new Card[] { new Card(foundation[move.From - 2], (CardColor)(move.From - 2)) };
+				foundation[move.From - 2] -= 1;
+			}
+			if (move.From == 1)
+			{ 
+				// Discard pile
+				movedcards = new Card[] { DiscardPile.Last() }; 
+				DiscardPile.Remove(DiscardPile.Last()); 
+			}
+			else if (move.From > 5) 
+			{
+				// Column
+				movedcards = cards[move.From - 6].Skip(cards[move.From - 6].Count - move.Cards).ToArray(); 
+				cards[move.From - 6].RemoveRange(cards[move.From - 6].Count - move.Cards, move.Cards); 
+			}
+			else if (move.From > 1) 
+			{
+				// Foundation (Only 1 card)
+				movedcards = new Card[] { new Card(foundation[move.From - 2], (CardColor)(move.From - 2)) };
+				foundation[move.From - 2] -= 1;
+			}
+
+			if (movedcards == null)
+			{
+				throw new ArgumentNullException(nameof(movedcards), "Invalid Card Selection! Moved cards cannot be null");
+			}
+
+			if (move.To == 0)
+			{
+				// Deck
+				Deck.AddRange(movedcards);
+			}
+			else if (move.To == 1)
+			{
+				// Discard pile
+				DiscardPile.AddRange(movedcards);
+			}
+			else if (move.To > 5)
+			{
+				// Column
+				cards[move.To - 6].AddRange(movedcards);
+			}
+			else if (move.To > 1)
+			{
+				// Foundation
+				foundation[move.To - 2] = movedcards[0].Value;
+			}
+
+		}
+		private void UndoMove()
+		{
+			if (MoveHistory.Count == 0)
+			{
+				Console.WriteLine("No moves to undo.");
+				return;
+			}
+			Move lastMove = MoveHistory.Last();
+			MoveHistory.RemoveAt(MoveHistory.Count - 1);
+			DoMove(new Move(lastMove.To, lastMove.From, lastMove.Cards));
+		}
+		private bool FindIfValidTarget()
+		{
+			Card[] movedcards = null;
+			if (previousCardSelection == 0)
+			{
+				//Deck
+				movedcards = new Card[] { Deck[0] };
+			}
+			else if (previousCardSelection > 5)
+			{
+				// Column
+				movedcards = cards[previousCardSelection - 6].Skip(cards[previousCardSelection - 6].Count - previousCardCount).ToArray();
+			}
+			else if (previousCardSelection > 1)
+			{
+				// Foundation (Only 1 card)
+				movedcards = new Card[] { new Card(foundation[previousCardSelection - 2], (CardColor)(previousCardSelection - 2)) };
+			}
+
+
+			if (selected == 0 || selected == 1)
+			{
+				return false;
+			}
+			if (selected > 5)
+			{
+				// Column
+				if (cards[selected - 6].Count == 0)
+				{
+					return cards[previousCardSelection - 6].Skip(cards[previousCardSelection - 6].Count - previousCardCount).First().Value == CardValue.King;
+				}
+				if (cards[selected - 6][cards[selected - 6].Count - 1].IsValidTarget(cards[selected - 6][cards[selected - 6].Count - count]))
+				{
+					return true;
+				}
+			}
+			else if (selected > 1)
+			{
+				if (previousCardCount > 1)
+				{
+					return false;
+				}
+				// Foundation
+				return foundation[selected - 2] + 1 == movedcards[0].Value;
+			}
+
+			// Invalid target
+			Debug.WriteLine("Invalid target");
+			return false; 
+		}
 		private void InitializeDeck()
 		{
 			foreach (CardColor color in Enum.GetValues(typeof(CardColor)))
@@ -129,7 +258,7 @@ namespace KonsolaPasjans
 			Random rand = new Random();
 			Deck = Deck.OrderBy(x => rand.Next()).ToList();
 		}
-		private void RunAction(int selected)
+		private void RunAction()
 		{
 			if (isDeckSelected)
 			{
@@ -140,15 +269,34 @@ namespace KonsolaPasjans
 			{
 				if (areCardsSelected)
 				{
+					if (previousCardSelection == selected)
+					{
+						int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } );
+						if (ret == 1) { previousCardSelection = -1; this.selected = 0; }
+					}
+					else
+					{
 
+					}
 				}
 			}
 			else
 			{
 				if (areCardsSelected)
 				{
-					int ret = ContextMenu.SummonAt(0,0,"Move card?", options: new string[] { "Yes", "No" });
-					if (ret == 0) { previousCardSelection = selected; this.selected = 0; }
+					int ret = ContextMenu.SummonAt(0,0,"Move cards?", options: new string[] { "Multiple", "Single", "Cancel" });
+					if (ret == 1)
+					{
+						previousCardCount = 1;
+					}
+					else if (ret == 0)
+					{
+						previousCardCount = cards[selected - 6].Count;
+					}
+					else
+					{
+						previousCardSelection = -1; this.selected = 0; return;
+					}
 				}
 			}
 			/*else if (selected == 1)
@@ -212,6 +360,7 @@ namespace KonsolaPasjans
 		{
 			int x = 9 * column, y = 5;
 			if (column < 0 || column > cards.Length) throw new ArgumentOutOfRangeException(nameof(column), "Column must be between 0 and cards.Length");
+			cards[column].Last().IsFaceUp = true;
 			foreach (var card in cards[column])
 			{
 				card.Display(x, y);
@@ -235,7 +384,7 @@ namespace KonsolaPasjans
 			}
 			if (DiscardPile.Count != 0)
 			{
-				List<Card> c = DiscardPile.Skip(DiscardPile.Count - 3).ToList();
+				List<Card> c = DiscardPile.Skip(DiscardPile.Count - (IsHardDifficulty ? 3 : 1)).ToList();
 				c[c.Count-1].IsSelected = isDiscardSelected;
 				int i = 0;
 				foreach(Card card in c)
