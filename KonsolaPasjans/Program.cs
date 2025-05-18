@@ -9,6 +9,8 @@ namespace KonsolaPasjans
 		{
 			Console.OutputEncoding = Encoding.UTF8;
 			Console.ResetColor();
+			Console.BackgroundColor = ConsoleColor.Black;
+			Console.ForegroundColor = ConsoleColor.Gray;
 			Console.Clear();
 			Console.SetWindowSize(64,32);
 			Game game = new Game();

@@ -11,12 +11,11 @@ namespace KonsolaPasjans
 			{
 				max = item.Length > max ? item.Length : max;
 			}
-			ConsoleColor defaultColor = Console.ForegroundColor;
             int selectedOption = 0;
 			while (true)
             {
 				Console.SetCursorPosition(x, y);
-				Console.ForegroundColor = defaultColor;
+				Console.ForegroundColor = ConsoleColor.Gray;
 				Console.Write(Title);
 				for (int i = 0; i < options.Length; i++)
 				{
@@ -24,11 +23,11 @@ namespace KonsolaPasjans
 					if (i == selectedOption)
 					{
 						Console.ForegroundColor = color;
-						Console.Write($"▶ {options[i].PadLeft(max)}");
+						Console.Write($"> {options[i].PadLeft(max)}");
 					}
 					else
 					{
-						Console.ForegroundColor = defaultColor;
+						Console.ForegroundColor = ConsoleColor.Gray;
 						Console.Write($"  {options[i].PadLeft(max)}");
 					}
 				}

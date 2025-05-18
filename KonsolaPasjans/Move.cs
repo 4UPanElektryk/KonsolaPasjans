@@ -14,5 +14,9 @@
 			To = to;
 			this.Cards = cards;
 		}
+		public Move Undo()
+		{
+			return new Move(To, From, Cards);
+		}
 	}
 }
