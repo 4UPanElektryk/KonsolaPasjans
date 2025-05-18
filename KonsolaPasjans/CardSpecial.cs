@@ -21,7 +21,7 @@ namespace KonsolaPasjans
 			if (this.IsFaceUp)
 			{
 				Console.SetCursorPosition(x, y++); Console.Write($"╔═════╗");
-				Console.SetCursorPosition(x, y++); Console.Write($"║ ◣─╮ ║");
+				Console.SetCursorPosition(x, y++); Console.Write($"║ ▼─╮ ║");
 				Console.SetCursorPosition(x, y++); Console.Write($"║   │ ║");
 				Console.SetCursorPosition(x, y++); Console.Write($"║ ╰─╯ ║");
 				Console.SetCursorPosition(x, y++); Console.Write($"╚═════╝");
