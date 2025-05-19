@@ -12,7 +12,7 @@ namespace KonsolaPasjans
 			Console.BackgroundColor = ConsoleColor.Black;
 			Console.ForegroundColor = ConsoleColor.Gray;
 			Console.Clear();
-			Console.SetWindowSize(64,32);
+			Console.SetWindowSize(80,32);
 			Game game = new Game();
 			Console.WriteLine("Welcome to Solitaire!");
 			Console.WriteLine("Press any key to start...");

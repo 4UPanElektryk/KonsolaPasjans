@@ -35,11 +35,12 @@ namespace KonsolaPasjans
 					List<Card> Source = cards[previousCardSelection - 6];
 					return Source.Skip(Source.Count - previousCardCount).ToArray();
 				}
-				return null; 
+				return new Card[0]; 
 			} }
 		private ManagedMoveHistory history = new ManagedMoveHistory(3);
 		private CardValue[] foundation = new CardValue[4];
 		public bool IsHardDifficulty = false;
+		private bool FullReRender = false;
 		private int selected = 0;
 		private int previousCardSelection = -1;
 		private int previousCardCount = 0;
@@ -281,12 +282,12 @@ namespace KonsolaPasjans
 				{
 					if (previousCardSelection == selected)
 					{
-						int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } );
+						int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } ); FullReRender = true;
 						if (ret == 1) { previousCardSelection = -1; this.selected = 0; }
 					}
 					else
 					{
-						int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" });
+						int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" }); FullReRender = true;
 						if (ret == 1) { previousCardSelection = -1; this.selected = 0; return; }
 						else if (ret == 0)
 						{
@@ -313,12 +314,21 @@ namespace KonsolaPasjans
 					}
 					else
 					{
-						if (FindIfValidTarget())
+						int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" }); FullReRender = true;
+						if (ret == 1) { previousCardSelection = -1; this.selected = 0; return; }
+						else if (ret == 0)
 						{
-							Move move = new Move(previousCardSelection, selected, previousCardCount);
-							DoMove(move);
-							history.Add(move);
-							previousCardSelection = -1; selected = 0;
+							if (FindIfValidTarget())
+							{
+								Move move = new Move(previousCardSelection, selected, previousCardCount);
+								DoMove(move);
+								history.Add(move);
+								previousCardSelection = -1; selected = 0;
+							}
+							else
+							{
+								Console.WriteLine("Invalid target");
+							}
 						}
 					}
 				}
@@ -327,7 +337,7 @@ namespace KonsolaPasjans
 			{
 				if (isDiscardSelected)
 				{
-					int ret = ContextMenu.SummonAt(0, 0, "Move cards?", options: new string[] { "Single", "Cancel" });
+					int ret = ContextMenu.SummonAt(0, 0, "Move cards?", options: new string[] { "Single", "Cancel" }); FullReRender = true;
 					if (ret == 0)
 					{
 						previousCardCount = 1;
@@ -341,7 +351,7 @@ namespace KonsolaPasjans
 				}
 				if (areCardsSelected)
 				{
-					int ret = ContextMenu.SummonAt(0,0,"Move cards?", options: new string[] { "Multiple", "Single", "Cancel" });
+					int ret = ContextMenu.SummonAt(0,0,"Move cards?", options: new string[] { "Multiple", "Single", "Cancel" }); FullReRender = true;
 					if (ret == 1)
 					{
 						previousCardCount = 1;
@@ -350,6 +360,12 @@ namespace KonsolaPasjans
 					}
 					else if (ret == 0)
 					{
+						while (true)
+						{
+
+						}
+
+
 						throw new NotImplementedException("Multiple card move not implemented yet");
 						previousCardCount = cards[selected - 6].Count;
 					}
@@ -414,7 +430,11 @@ namespace KonsolaPasjans
 		#region Screen Display
 		private void Display()
 		{
-			Console.Clear();
+			if (FullReRender)
+			{
+				Console.Clear();
+				FullReRender = false;
+			}
 			for (int i = 0; i < foundation.Length; i++)
 			{
 				DisplayFoundation(i);
@@ -424,12 +444,32 @@ namespace KonsolaPasjans
 				DisplayCardColumn(i);
 			}
 			DisplayDeck();
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.BackgroundColor = ConsoleColor.DarkGreen;
+			for (int i = 0; i < Console.WindowHeight; i++)
+			{
+				Console.SetCursorPosition(62, i);
+				Console.Write("║");
+			}
+			DisplaySelection();
+		}
+		private void DisplaySelection()
+		{
+			int x = 64, y = 5;
+			foreach (var card in CardsSelected)
+			{
+				card.Display(x, y);
+				y += 2;
+			}
 		}
 		private void DisplayCardColumn(int column)
 		{
 			int x = 9 * column, y = 5;
 			if (column < 0 || column > cards.Length) throw new ArgumentOutOfRangeException(nameof(column), "Column must be between 0 and cards.Length");
-			cards[column].Last().IsFaceUp = true;
+			if (cards[column].Count > 0)
+			{
+				cards[column].Last().IsFaceUp = true;
+			}
 			foreach (var card in cards[column])
 			{
 				card.Display(x, y);
