@@ -29,6 +29,7 @@ namespace KonsolaPasjans
 			else
 			{
 				ConsoleColor cardColor = (int)Color % 2 == 0 ? ConsoleColor.Red : ConsoleColor.Black;
+				if (Color == CardColor.None) { cardColor = ConsoleColor.White; }
 				Console.ForegroundColor = cardColor;
 				if (this.IsSelected)
 				{

@@ -43,7 +43,7 @@ namespace KonsolaPasjans
 				Console.SetCursorPosition(x, y++); Console.Write("╚═════╝");
 			}
 		}
-		public static char ColorToChar(CardColor color) { 
+		protected static char ColorToChar(CardColor color) { 
 			switch(color)
 			{
 				case CardColor.Hearts:
@@ -54,6 +54,8 @@ namespace KonsolaPasjans
 					return '♣';
 				case CardColor.Spades:
 					return '♠';
+				case CardColor.None:
+					return ' ';
 				default:
 					throw new ArgumentOutOfRangeException(nameof(color), color, null);
 			}
@@ -64,7 +66,7 @@ namespace KonsolaPasjans
 			bool isTargetRed = (int)card.Color % 2 == 0;
 			if (isLocalRed != isTargetRed)
 			{
-				if (this.Value > card.Value)
+				if (this.Value == (card.Value+1))
 				{
 					return true;
 				}
