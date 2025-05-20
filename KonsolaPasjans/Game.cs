@@ -12,31 +12,15 @@ namespace KonsolaPasjans
 		private List<Card> DiscardPile { get; set; } = new List<Card>();
 		private List<Card>[] cards = new List<Card>[7];
 
-		private Card[] CardsSelected { get
-			{
-				if (previousCardSelection == 0)
-				{
-					//Deck
-					return new Card[] { Deck[0] };
-				}
-				else if (previousCardSelection == 1)
-				{
-					// Discard pile
-					return new Card[] { DiscardPile.Last() };
-				}
-				else if (previousCardSelection > 1 && previousCardSelection < 6)
-				{
-					// Foundation (Only 1 card)
-					return new Card[] { new Card(foundation[previousCardSelection - 2], (CardColor)(previousCardSelection - 2)) };
-				}
-				else if (previousCardSelection > 5)
-				{
-					// Column
-					List<Card> Source = cards[previousCardSelection - 6];
-					return Source.Skip(Source.Count - previousCardCount).ToArray();
-				}
+		private Card[] CardsSelected { 
+			get {
+				if (previousCardSelection == 0) { /* Deck */ return new Card[] { Deck[0] }; }
+				else if (previousCardSelection == 1) { /* Discard pile */ return new Card[] { DiscardPile.Last() }; }
+				else if (previousCardSelection > 1 && previousCardSelection < 6) { /* Foundation (Only 1 card) */ return new Card[] { new Card(foundation[previousCardSelection - 2], (CardColor)(previousCardSelection - 2)) }; }
+				else if (previousCardSelection > 5) { /* Column */ return cards[previousCardSelection - 6].Skip(cards[previousCardSelection - 6].Count - previousCardCount).ToArray(); }
 				return new Card[0]; 
-			} }
+			} 
+		}
 		private ManagedMoveHistory history = new ManagedMoveHistory(3);
 		private CardValue[] foundation = new CardValue[4];
 		public bool IsHardDifficulty = false;
@@ -90,26 +74,48 @@ namespace KonsolaPasjans
 				}
 				else if (key.Key == ConsoleKey.UpArrow)
 				{
-					selected -= 7;
-					if (selected < 0)
+					if (selected == 6)
 					{
-						selected +=12;
+						selected = 0;
 					}
-					if (DiscardPile.Count == 0 && selected == 1)
+					else if (selected == 7 || selected == 8)
+					{
+						selected = 1;
+					}
+					else
+					{
+						selected -= 7;
+						if (selected < 0)
+						{
+							selected += 12;
+						}
+					}
+					if (DiscardPile.Count == 0 && isDiscardSelected)
 					{
 						selected--;
 					}
 				}
 				else if (key.Key == ConsoleKey.DownArrow)
 				{
-					selected += 7;
-					if (selected > 12)
+					if (isDeckSelected)
 					{
-						selected -= 12;
+						selected = 6;
 					}
-					if (DiscardPile.Count == 0 && selected == 1)
+					else if (isDiscardSelected)
 					{
-						selected++;
+						selected = 7;
+					}
+					else
+					{
+						selected += 7;
+						if (selected > 12)
+						{
+							selected -= 12;
+						}
+						if (DiscardPile.Count == 0 && selected == 1)
+						{
+							selected++;
+						}
 					}
 				}
 				else if (key.Key == ConsoleKey.Spacebar || key.Key == ConsoleKey.Enter)
@@ -120,6 +126,21 @@ namespace KonsolaPasjans
 						cards[selected - 6][cards[selected - 6].Count - 1].IsSelected = false;
 					}
 					RunAction();
+				}
+				else if (key.Key == ConsoleKey.Escape)
+				{
+					if (areCardsSelected)
+					{
+						previousCardSelection = -1;
+						FullReRender = true;
+					}
+					else
+					{
+						// Game Menu
+						// Options:
+						// Restart
+						// Undo
+					}
 				}
 				#endregion
 			}
@@ -157,8 +178,12 @@ namespace KonsolaPasjans
 					return false;
 				}
 				// Foundation
-				Debug.WriteLine("Moving Card To Foundation");
-				return foundation[selected - 2] + 1 == movedcards[0].Value;
+				if (selected - 2 == (int)movedcards[0].Color)
+				{
+					Debug.WriteLine("Moving Card To Foundation");
+					return foundation[selected - 2] + 1 == movedcards[0].Value;
+				}
+				return false;
 			}
 
 			// Invalid target
@@ -178,54 +203,44 @@ namespace KonsolaPasjans
 				{
 					if (previousCardSelection == selected)
 					{
+						// Same Card Selected
 						int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } ); FullReRender = true;
 						if (ret == 1) { previousCardSelection = -1; this.selected = 0; }
 					}
-					else
+					else if (FindIfValidTarget())
 					{
-						int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" }); FullReRender = true;
+						// Different Card Confirmation
+						/*int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" }); 
 						if (ret == 1) { previousCardSelection = -1; this.selected = 0; return; }
 						else if (ret == 0)
-						{
-							Debug.WriteLineIf(cards[selected-6].Count > 0,"Target Card: " + cards[selected - 6].Last().ToString());
-							if (FindIfValidTarget())
-							{
-								Move move = new Move(previousCardSelection, selected, previousCardCount);
-								DoMove(move);
-								history.Add(move);
-								previousCardSelection = -1; selected = 0;
-							}
-							else
-							{
-								Console.WriteLine("Invalid target");
-							}
-						}
+						{*/
+							Move move = new Move(previousCardSelection, selected, previousCardCount);
+							DoMove(move);
+							history.Add(move);
+							previousCardSelection = -1; selected = 0;
+						//}
+						FullReRender = true;
 					}
 				}
 				else if(selected > 1)
 				{
+					// Foundation
 					if (CardsSelected.Length > 1)
 					{
 						Debug.WriteLine("Invalid Target For Multiple Cards");
 					}
-					else
+					else if (FindIfValidTarget())
 					{
-						int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" }); FullReRender = true;
+						/*int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" });
 						if (ret == 1) { previousCardSelection = -1; this.selected = 0; return; }
 						else if (ret == 0)
-						{
-							if (FindIfValidTarget())
-							{
-								Move move = new Move(previousCardSelection, selected, previousCardCount);
-								DoMove(move);
-								history.Add(move);
-								previousCardSelection = -1; selected = 0;
-							}
-							else
-							{
-								Console.WriteLine("Invalid target");
-							}
-						}
+						{*/
+							Move move = new Move(previousCardSelection, selected, previousCardCount);
+							DoMove(move);
+							history.Add(move);
+							previousCardSelection = -1; selected = 0;
+						//}
+						FullReRender = true;
 					}
 				}
 			}
@@ -233,8 +248,13 @@ namespace KonsolaPasjans
 			{
 				if (isDiscardSelected)
 				{
-					int ret = ContextMenu.SummonAt(0, 0, "Move cards?", options: new string[] { "Single", "Cancel" }); FullReRender = true;
-					if (ret == 0)
+					previousCardCount = 1;
+					previousCardSelection = selected;
+					Debug.WriteLine(CardsSelected[0].ToString());
+				}
+				if (areCardsSelected && !(cards[selected - 6].Count == 0)) // if cards are selected and the column is not empty
+				{
+					if (DiscoverMaxSelection() == 1)
 					{
 						previousCardCount = 1;
 						previousCardSelection = selected;
@@ -242,21 +262,17 @@ namespace KonsolaPasjans
 					}
 					else
 					{
-						previousCardSelection = -1; this.selected = 0; return;
-					}
-				}
-				if (areCardsSelected)
-				{
-					if (!(cards[selected - 6].Count == 0))
-					{
-						int ret = ContextMenu.SummonAt(0,0,"Move cards?", options: new string[] { "Multiple", "Single", "Cancel" }); FullReRender = true;
-						if (ret == 1)
+						previousCardCount = 1;
+						previousCardSelection = selected;
+						Debug.WriteLine(CardsSelected[0].ToString());
+						int ret = ContextMenu.SummonAt(0,0,"Move cards?", options: new string[] { "Single", "Multiple", "Cancel" }); FullReRender = true;
+						if (ret == 0)
 						{
 							previousCardCount = 1;
 							previousCardSelection = selected;
 							Debug.WriteLine(CardsSelected[0].ToString());
 						}
-						else if (ret == 0)
+						else if (ret == 1)
 						{
 							previousCardCount = DiscoverMaxSelection();
 							previousCardSelection = selected;
@@ -270,31 +286,6 @@ namespace KonsolaPasjans
 					}
 				}
 			}
-			/*else if (selected == 1)
-			{
-				if (DiscardPile.Count != 0)
-				{
-					Deck.Add(DiscardPile[DiscardPile.Count - 1]);
-					DiscardPile.RemoveAt(DiscardPile.Count - 1);
-				}
-			}
-			else if (selected > 5)
-			{
-				int column = selected - 6;
-				if (cards[column].Count != 0)
-				{
-					cards[column][cards[column].Count - 1].IsSelected = true;
-				}
-			}
-			else
-			{
-				int column = selected;
-				if (foundation[column] == CardValue.None)
-				{
-					foundation[column] = cards[column][cards[column].Count - 1].Value;
-					cards[column].RemoveAt(cards[column].Count - 1);
-				}
-			}*/
 		}
 		private int DiscoverMaxSelection()
 		{
@@ -419,15 +410,16 @@ namespace KonsolaPasjans
 			if (Deck.Count == 0)
 			{
 				FullReRender = true;
-				//Deck = DiscardPile;
+				Deck = DiscardPile;
 				for (int i = 0; i < DiscardPile.Count; i++)
 				{
 					DiscardPile[i].IsFaceUp = false;
 				}
-				Move move = new Move(1, 0, DiscardPile.Count);
-				DoMove(move);
-				history.Add(move);
-				//DiscardPile = new List<Card>();
+				//Move move = new Move(1, 0, DiscardPile.Count);
+				//DoMove(move);
+				//history.Add(move);
+				DiscardPile = new List<Card>();
+				ShuffleDeck();
 				return;
 			}
 			Deck[0].IsFaceUp = true;
@@ -514,7 +506,6 @@ namespace KonsolaPasjans
 				int i = 0;
 				foreach(Card card in c)
 				{
-					Debug.WriteLine(card.ToString() + " " + i);
 					card.Display((x + 9) + i * 4,y);
 					i++;
 				}
