@@ -43,9 +43,7 @@ namespace KonsolaPasjans
 			Display();
 			while (true)
 			{
-				#region Display Logic
 				Display();
-				#endregion
 				#region User Input
 				ConsoleKeyInfo key = Console.ReadKey(true);
 				if (key.Key == ConsoleKey.LeftArrow)
@@ -120,7 +118,7 @@ namespace KonsolaPasjans
 				}
 				else if (key.Key == ConsoleKey.Spacebar || key.Key == ConsoleKey.Enter)
 				{
-					Debug.WriteLine($"Selected {selected}");
+					//Debug.WriteLine($"Selected {selected}");
 					if (selected > 5 && cards[selected - 6].Count > 0)
 					{
 						cards[selected - 6][cards[selected - 6].Count - 1].IsSelected = false;
