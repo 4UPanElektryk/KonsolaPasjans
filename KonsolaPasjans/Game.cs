@@ -50,9 +50,7 @@ namespace KonsolaPasjans
 			Display();
 			while (true)
 			{
-				#region Display Logic
 				Display();
-				#endregion
 				#region User Input
 				ConsoleKeyInfo key = Console.ReadKey(true);
 				if (key.Key == ConsoleKey.LeftArrow)
