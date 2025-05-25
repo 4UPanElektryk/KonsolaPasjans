@@ -13,6 +13,13 @@ namespace KonsolaPasjans
 			Value = value;
 			Color = color;
 		}
+		public Card(Card card)
+		{
+			this.Value = card.Value;
+			this.Color = card.Color;
+			this.IsFaceUp = card.IsFaceUp;
+			this.IsSelected = card.IsSelected;
+		}
 		public override string ToString()
 		{
 			return $"{Value} of {Color}";

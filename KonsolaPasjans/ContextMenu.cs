@@ -6,7 +6,7 @@ namespace KonsolaPasjans
     {
         public static int SummonAt(int x, int y,string Title, string[] options, ConsoleColor color = ConsoleColor.White)
         {
-			int max = 0;
+			int max = Title.Length;
 			foreach (var item in options)
 			{
 				max = item.Length > max ? item.Length : max;

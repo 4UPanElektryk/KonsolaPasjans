@@ -8,35 +8,42 @@ namespace KonsolaPasjans
 	// Game of Solitaire
 	public class Game
     {
+
+		// Cards And stuff
 		private List<Card> Deck { get; set; } = new List<Card>();
 		private List<Card> DiscardPile { get; set; } = new List<Card>();
 		private List<Card>[] cards = new List<Card>[7];
+		private CardValue[] foundation = new CardValue[4];
 
-		private Card[] CardsSelected { 
+		// Selection
+		private int cursor = 0;
+		private int selection = -1;
+		private int selectionCount = 0;
+		private Card[] selectionCards { 
 			get {
-				if (previousCardSelection == 0) { /* Deck */ return new Card[] { Deck[0] }; }
-				else if (previousCardSelection == 1) { /* Discard pile */ return new Card[] { DiscardPile.Last() }; }
-				else if (previousCardSelection > 1 && previousCardSelection < 6) { /* Foundation (Only 1 card) */ return new Card[] { new Card(foundation[previousCardSelection - 2], (CardColor)(previousCardSelection - 2)) }; }
-				else if (previousCardSelection > 5) { /* Column */ return cards[previousCardSelection - 6].Skip(cards[previousCardSelection - 6].Count - previousCardCount).ToArray(); }
+				if (selection == 0) { /* Deck */ return new Card[] { Deck[0] }; }
+				else if (selection == 1) { /* Discard pile */ return new Card[] { DiscardPile.Last() }; }
+				else if (selection > 1 && selection < 6) { /* Foundation (Only 1 card) */ return new Card[] { new Card(foundation[selection - 2], (CardColor)(selection - 2)) }; }
+				else if (selection > 5) { /* Column */ return cards[selection - 6].Skip(cards[selection - 6].Count - selectionCount).ToArray(); }
 				return new Card[0]; 
 			} 
 		}
+
+		// Game State
 		private ManagedMoveHistory history = new ManagedMoveHistory(3);
-		private CardValue[] foundation = new CardValue[4];
 		public bool IsHardDifficulty = false;
 		private bool FullReRender = false;
-		private int selected = 0;
-		private int previousCardSelection = -1;
-		private int previousCardCount = 0;
-		private bool isDeckSelected { get { return selected == 0; } }
-		private bool isDiscardSelected { get { return selected == 1; } }
-		private bool areCardsSelected { get { return selected > 5;  } }
-		private bool isCardBeingMoved { get { return previousCardSelection != -1; } }
+
+		private bool isDeckSelected { get { return cursor == 0; } }
+		private bool isDiscardSelected { get { return cursor == 1; } }
+		private bool areCardsSelected { get { return cursor > 5;  } }
+		private bool isCardBeingMoved { get { return selection != -1; } }
 
 		public Game() { }
 		public void Start()
 		{
 			InitializeDeck();
+			Console.CursorVisible = false;
 			Console.BackgroundColor = ConsoleColor.DarkGreen;
 			Console.ForegroundColor = ConsoleColor.White;
 			Console.Clear();
@@ -50,138 +57,151 @@ namespace KonsolaPasjans
 				ConsoleKeyInfo key = Console.ReadKey(true);
 				if (key.Key == ConsoleKey.LeftArrow)
 				{
-					selected--;
-					if (selected < 0)
+					cursor--;
+					if (cursor < 0)
 					{
-						selected = 12;
+						cursor = 12;
 					}
-					if (DiscardPile.Count == 0 && selected == 1)
+					if (DiscardPile.Count == 0 && cursor == 1)
 					{
-						selected--;
+						cursor--;
 					}
 				}
 				else if (key.Key == ConsoleKey.RightArrow)
 				{
-					selected++;
-					if (selected > 12)
+					cursor++;
+					if (cursor > 12)
 					{
-						selected = 0;
+						cursor = 0;
 					}
-					if (DiscardPile.Count == 0 && selected == 1)
+					if (DiscardPile.Count == 0 && cursor == 1)
 					{
-						selected++;
+						cursor++;
 					}
 				}
 				else if (key.Key == ConsoleKey.UpArrow)
 				{
-					if (selected == 6)
+					if (cursor == 6)
 					{
-						selected = 0;
+						cursor = 0;
 					}
-					else if (selected == 7 || selected == 8)
+					else if (cursor == 7 || cursor == 8)
 					{
-						selected = 1;
+						cursor = 1;
 					}
 					else
 					{
-						selected -= 7;
-						if (selected < 0)
+						cursor -= 7;
+						if (cursor < 0)
 						{
-							selected += 12;
+							cursor += 12;
 						}
 					}
 					if (DiscardPile.Count == 0 && isDiscardSelected)
 					{
-						selected--;
+						cursor--;
 					}
 				}
 				else if (key.Key == ConsoleKey.DownArrow)
 				{
 					if (isDeckSelected)
 					{
-						selected = 6;
+						cursor = 6;
 					}
 					else if (isDiscardSelected)
 					{
-						selected = 7;
+						cursor = 7;
 					}
 					else
 					{
-						selected += 7;
-						if (selected > 12)
+						cursor += 7;
+						if (cursor > 12)
 						{
-							selected -= 12;
+							cursor -= 12;
 						}
-						if (DiscardPile.Count == 0 && selected == 1)
+						if (DiscardPile.Count == 0 && cursor == 1)
 						{
-							selected++;
+							cursor++;
 						}
 					}
 				}
 				else if (key.Key == ConsoleKey.Spacebar || key.Key == ConsoleKey.Enter)
 				{
-					Debug.WriteLine($"Selected {selected}");
-					if (selected > 5 && cards[selected - 6].Count > 0)
+					Debug.WriteLine($"Selected {cursor}");
+					if (cursor > 5 && cards[cursor - 6].Count > 0)
 					{
-						cards[selected - 6][cards[selected - 6].Count - 1].IsSelected = false;
+						cards[cursor - 6][cards[cursor - 6].Count - 1].IsSelected = false;
 					}
 					RunAction();
 				}
 				else if (key.Key == ConsoleKey.Escape)
 				{
-					if (areCardsSelected)
+					if (isCardBeingMoved)
 					{
-						previousCardSelection = -1;
+						selection = -1;
 						FullReRender = true;
 					}
 					else
 					{
-						// Game Menu
-						// Options:
-						// Restart
-						// Undo
+						if (DisplayPauseMenu())
+						{
+							break; // Exit the game loop
+						}
 					}
+				}
+				if (IsGameWon())
+				{
+					//TODO: Game won logic
+
+					Console.Clear();
+					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 1);
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("You won the game!");
+					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2);
+					Console.WriteLine("Press any key to exit...");
+					Console.ReadKey(true);
+					break; // Exit the game loop
 				}
 				#endregion
 			}
+			Console.CursorVisible = true;
 		}
+		#region Selection Logic
 		private bool FindIfValidTarget()
 		{
-			Card[] movedcards = CardsSelected;
-
-
-			if (selected == 0 || selected == 1)
+			Card[] movedcards = selectionCards;
+			if (isDeckSelected || isDiscardSelected)
 			{
 				Debug.WriteLine("Cannot move to the Deck or the Discar Pile");
 				return false;
 			}
-			if (selected > 5)
+			if (areCardsSelected)
 			{
 				Debug.WriteLine("Column Selected Target");
 				// Column
-				if (cards[selected - 6].Count == 0)
+				if (cards[cursor - 6].Count == 0)
 				{
-					Debug.WriteLineIf(CardsSelected[0].Value == CardValue.King, "Moving To Empty Slot because king");
-					return CardsSelected[0].Value == CardValue.King;
+					Debug.WriteLineIf(selectionCards[0].Value == CardValue.King, "Moving To Empty Slot because king");
+					return selectionCards[0].Value == CardValue.King;
 				}
-				if (cards[selected - 6][cards[selected - 6].Count - 1].IsValidTarget(CardsSelected[0]))
+				if (cards[cursor - 6][cards[cursor - 6].Count - 1].IsValidTarget(selectionCards[0]))
 				{
-					Debug.WriteLine($"Moving From {previousCardSelection} to Column {selected - 6}");
+					Debug.WriteLine($"Moving From {selection} to Column {cursor - 6}");
 					return true;
 				}
 			}
-			else if (selected > 1)
+			else if (cursor > 1)
 			{
-				if (previousCardCount > 1)
+				if (selectionCount > 1)
 				{
 					Debug.WriteLine("Too many Cards");
 					return false;
 				}
 				// Foundation
-				if (selected - 2 == (int)movedcards[0].Color)
+				if (cursor - 2 == (int)movedcards[0].Color)
 				{
 					Debug.WriteLine("Moving Card To Foundation");
-					return foundation[selected - 2] + 1 == movedcards[0].Value;
+					return foundation[cursor - 2] + 1 == movedcards[0].Value;
 				}
 				return false;
 			}
@@ -201,11 +221,11 @@ namespace KonsolaPasjans
 			{
 				if (areCardsSelected)
 				{
-					if (previousCardSelection == selected)
+					if (selection == cursor)
 					{
 						// Same Card Selected
-						int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } ); FullReRender = true;
-						if (ret == 1) { previousCardSelection = -1; this.selected = 0; }
+						/*int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } ); FullReRender = true;
+						if (ret == 1) { */selection = -1; selectionCount = 0; this.cursor = 0; //}
 					}
 					else if (FindIfValidTarget())
 					{
@@ -214,32 +234,27 @@ namespace KonsolaPasjans
 						if (ret == 1) { previousCardSelection = -1; this.selected = 0; return; }
 						else if (ret == 0)
 						{*/
-							Move move = new Move(previousCardSelection, selected, previousCardCount);
+							Move move = new Move(selection, cursor, selectionCount);
 							DoMove(move);
 							history.Add(move);
-							previousCardSelection = -1; selected = 0;
+							selection = -1; cursor = 0;
 						//}
 						FullReRender = true;
 					}
 				}
-				else if(selected > 1)
+				else if(cursor > 1)
 				{
 					// Foundation
-					if (CardsSelected.Length > 1)
+					if (selectionCards.Length > 1)
 					{
 						Debug.WriteLine("Invalid Target For Multiple Cards");
 					}
 					else if (FindIfValidTarget())
 					{
-						/*int ret = ContextMenu.SummonAt(0, 0, "Confirm move?", options: new string[] { "Yes", "No", "Cancel" });
-						if (ret == 1) { previousCardSelection = -1; this.selected = 0; return; }
-						else if (ret == 0)
-						{*/
-							Move move = new Move(previousCardSelection, selected, previousCardCount);
-							DoMove(move);
-							history.Add(move);
-							previousCardSelection = -1; selected = 0;
-						//}
+						Move move = new Move(selection, cursor, selectionCount);
+						DoMove(move);
+						history.Add(move);
+						selection = -1; cursor = 0;
 						FullReRender = true;
 					}
 				}
@@ -248,49 +263,122 @@ namespace KonsolaPasjans
 			{
 				if (isDiscardSelected)
 				{
-					previousCardCount = 1;
-					previousCardSelection = selected;
-					Debug.WriteLine(CardsSelected[0].ToString());
+					selectionCount = 1;
+					selection = cursor;
+					Debug.WriteLine(selectionCards[0].ToString());
 				}
-				if (areCardsSelected && !(cards[selected - 6].Count == 0)) // if cards are selected and the column is not empty
+				if (areCardsSelected && !(cards[cursor - 6].Count == 0)) // if cards are selected and the column is not empty
 				{
 					if (DiscoverMaxSelection() == 1)
 					{
-						previousCardCount = 1;
-						previousCardSelection = selected;
-						Debug.WriteLine(CardsSelected[0].ToString());
+						selectionCount = 1;
+						selection = cursor;
+						Debug.WriteLine(selectionCards[0].ToString());
 					}
 					else
 					{
-						previousCardCount = 1;
-						previousCardSelection = selected;
-						Debug.WriteLine(CardsSelected[0].ToString());
-						int ret = ContextMenu.SummonAt(0,0,"Move cards?", options: new string[] { "Single", "Multiple", "Cancel" }); FullReRender = true;
-						if (ret == 0)
+						selectionCount = DiscoverMaxSelection();
+						selection = cursor;
+						Debug.WriteLine(selectionCards[0].ToString());
+						int count = 1;
+						while (true)
 						{
-							previousCardCount = 1;
-							previousCardSelection = selected;
-							Debug.WriteLine(CardsSelected[0].ToString());
+							DisplaySelection(count); // Display the selection with the current count
+							ConsoleKeyInfo key = Console.ReadKey(true);
+							if(key.Key == ConsoleKey.Escape)
+							{
+								//exit cancel selection
+								selection = -1; 
+								this.cursor = 0; 
+								break;
+							}
+							else if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
+							{
+								//exit selection
+								selection = cursor;
+								selectionCount = count;
+								break;
+							}
+							else if(key.Key == ConsoleKey.UpArrow)
+							{
+								count++;
+								if (count > selectionCount)
+								{
+									count = 1;
+								}
+							}
+							else if (key.Key == ConsoleKey.DownArrow)
+							{
+								count--;
+								if (count < 1)
+								{
+									count = selectionCount;
+								}
+							}
 						}
-						else if (ret == 1)
-						{
-							previousCardCount = DiscoverMaxSelection();
-							previousCardSelection = selected;
-							Debug.WriteLine($"Discovered stack of {previousCardCount}");
-							//throw new NotImplementedException("Multiple card move not implemented yet");
-						}
-						else
-						{
-							previousCardSelection = -1; this.selected = 0; return;
-						}
+						FullReRender = true;
 					}
 				}
+				//TODO: Foundation
+
 			}
 		}
+		#endregion
+		#region Game Logic
+		private bool IsGameWon()
+		{
+			// Check if all foundations are filled
+			return foundation.All(f => f == CardValue.King);
+		}
+		/// <summary>
+		/// In game pause menu when ESC is pressed
+		/// </summary>
+		/// <returns>true if game is ended and false if the game should continue</returns>
+		private	bool DisplayPauseMenu()
+		{
+			//center screen pause menu
+			Console.Clear();
+			int ret = ContextMenu.SummonAt(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 3, "Game Paused", new string[] { "Resume", "Undo Move", "Restart Game", "Exit to Main Menu" }, ConsoleColor.Yellow);
+			if (ret == 1)
+			{
+				UndoMove();
+			}
+			else if (ret == 2) 
+			{
+				RestartGame();
+			}
+			else if (ret == 3)
+			{
+				return true;
+			}
+			FullReRender = true;
+			return false;
+		}
+		private void RestartGame()
+		{
+			// Reset the game state
+			Deck.Clear();
+			DiscardPile.Clear();
+			for (int i = 0; i < cards.Length; i++)
+			{
+				cards[i].Clear();
+			}
+			for (int i = 0; i < foundation.Length; i++)
+			{
+				foundation[i] = CardValue.None;
+			}
+			cursor = 0;
+			selection = -1;
+			history = new ManagedMoveHistory(3);
+			InitializeDeck();
+			FullReRender = true;
+		}
+		#endregion
+		#region Card Logic
 		private int DiscoverMaxSelection()
 		{
 			int n = 1;
-			int column = selected - 6;
+			int column = cursor - 6;
 			int cardslen = cards[column].Count;
 			for (int i = cardslen - 1; i > 0; i--)
 			{
@@ -305,7 +393,6 @@ namespace KonsolaPasjans
 			}
 			return n;
 		}
-		#region Card Logic
 		private void InitializeDeck()
 		{
 			for (int j = 0; j <= 3; j++)
@@ -453,13 +540,24 @@ namespace KonsolaPasjans
 			}
 			DisplaySelection();
 		}
-		private void DisplaySelection()
+		private void DisplaySelection(int amount = 0)
 		{
-			int x = 64, y = 5;
-			foreach (var card in CardsSelected)
+			Console.SetCursorPosition(64, 5);
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.WriteLine("Selection: ");
+			int x = 64, y = 6;
+			if (selection != -1)
 			{
-				card.Display(x, y);
-				y += 2;
+				for (int i = 0; i < selectionCount; i++)
+				{
+					Card displayCard = new Card(selectionCards[i]);
+					if (i >= selectionCount - amount)
+					{
+						displayCard.IsSelected = true;
+					}
+					displayCard.Display(x, y);
+					y += 2;
+				}
 			}
 		}
 		private void DisplayCardColumn(int column)
@@ -473,11 +571,11 @@ namespace KonsolaPasjans
 			if (cards[column].Count == 0)
 			{
 				Card card = new CardSpecial(CardColor.None, false);
-				card.IsSelected = column == selected - 6;
+				card.IsSelected = column == cursor - 6;
 				card.Display(x, y);
 				return;
 			}
-			cards[column][cards[column].Count - 1].IsSelected = column == selected - 6;
+			cards[column][cards[column].Count - 1].IsSelected = column == cursor - 6;
 			foreach (var card in cards[column])
 			{
 				card.Display(x, y);
@@ -518,14 +616,14 @@ namespace KonsolaPasjans
 			if (foundation[column] == CardValue.None)
 			{
 				CardSpecial card = new CardSpecial((CardColor)column, false);
-				card.IsSelected = column + 2 == selected;
+				card.IsSelected = column + 2 == cursor;
 				card.Display(x, y);
 			}
 			else
 			{
 				Card c = new Card(foundation[column], (CardColor)column);
 				c.IsFaceUp = true;
-				c.IsSelected = column + 2 == selected;
+				c.IsSelected = column + 2 == cursor;
 				c.Display(x, y);
 			}
 		}
