@@ -498,16 +498,14 @@ namespace KonsolaPasjans
 			if (Deck.Count == 0)
 			{
 				FullReRender = true;
-				Deck = DiscardPile;
 				for (int i = 0; i < DiscardPile.Count; i++)
 				{
 					DiscardPile[i].IsFaceUp = false;
 				}
-				//Move move = new Move(1, 0, DiscardPile.Count);
-				//DoMove(move);
-				//history.Add(move);
-				DiscardPile = new List<Card>();
-				ShuffleDeck();
+				Move move = new Move(1, 0, DiscardPile.Count);
+				DoMove(move);
+				history.Add(move);
+
 				return;
 			}
 			if (IsHardDifficulty)
@@ -521,6 +519,7 @@ namespace KonsolaPasjans
 					Deck[i].IsSelected = false;
 				}
 				DoMove(move);
+				history.Add(move);
 				FullReRender = true;
 			}
 			else
@@ -528,8 +527,8 @@ namespace KonsolaPasjans
 
 				Deck[0].IsFaceUp = true;
 				Move move = new Move(0, 1, 1);
-				DiscardPile.Add(Deck[0]);
-				Deck.RemoveAt(0);
+				DoMove(move);
+				history.Add(move);
 			}
 		}
 		#endregion
