@@ -30,8 +30,8 @@ namespace KonsolaPasjans
 		}
 
 		// Game State
-		private ManagedMoveHistory history = new ManagedMoveHistory(3);
 		public bool IsHardDifficulty = false;
+		private ManagedMoveHistory history = new ManagedMoveHistory(3);
 		private bool FullReRender = false;
 
 		private bool isDeckSelected { get { return cursor == 0; } }
@@ -562,7 +562,7 @@ namespace KonsolaPasjans
 		{
 			Console.SetCursorPosition(64, 5);
 			Console.ForegroundColor = ConsoleColor.White;
-			Console.WriteLine("Selection: ");
+			Console.WriteLine("Wybrane Karty: ");
 			int x = 64, y = 6;
 			if (selection != -1)
 			{

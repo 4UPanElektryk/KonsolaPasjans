@@ -9,18 +9,82 @@ namespace KonsolaPasjans
 		{
 			Console.OutputEncoding = Encoding.UTF8;
 			Console.ResetColor();
-			Console.BackgroundColor = ConsoleColor.Black;
-			Console.ForegroundColor = ConsoleColor.Gray;
+			while (true)
+			{
+				Console.BackgroundColor = ConsoleColor.Black;
+				Console.ForegroundColor = ConsoleColor.Gray;
+				Console.SetWindowSize(80, 36);
+				Console.Clear();
+				Console.WriteLine("Witaj w Pasjansie!");
+				int val = ContextMenu.SummonAt(0, 2, "Wybierz opcję:", new string[] { "Nowa Gra", "Samouczek", "Wyjdź z gry" }, ConsoleColor.Yellow);
+				switch (val)
+				{
+					case 0: // Nowa Gra
+						StartNewGame();
+						break;
+					case 1: // Samouczek
+						TutorialMenu();
+						break;
+					case 2: // Wyjdź z gry
+						Exit();
+						break;
+				}
+			}
+		}
+		static private void StartNewGame()
+		{
 			Console.Clear();
-			Console.SetWindowSize(80,32);
+			int val = ContextMenu.SummonAt(0, 2, "Wybierz poziom trudności:", new string[] { "Prosty", "Trudny", "Powrót" }, ConsoleColor.Yellow);
+			if (val == 2)
+			{
+				return; // Return to main menu
+			}
 			Game game = new Game();
-			Console.WriteLine("Welcome to Solitaire!");
-			Console.WriteLine("Press any key to start...");
-			Console.ReadKey();
-			int val = ContextMenu.SummonAt(0,2, "Choose Difficulty", new string[] { "Easy", "Hard" }, ConsoleColor.Yellow);
 			game.IsHardDifficulty = val == 1;
 			game.Start();
+		}
+		static private void Exit()
+		{
+			Console.Clear();
+			Console.WriteLine("Dziękujemy za grę w Pasjansa!");
+			Console.WriteLine("Naciśnij dowolny klawisz, aby zakończyć.");
 			Console.ReadKey();
+			Environment.Exit(0);
+		}
+		static private void TutorialMenu()
+		{
+			Tutorial[] tutorials = new Tutorial[]
+			{
+				new Tutorials.TutorialCursor()
+			};
+			while (true)
+			{
+				Console.BackgroundColor = ConsoleColor.Black;
+				Console.ForegroundColor = ConsoleColor.Gray;
+				Console.SetWindowSize(80, 36);
+				Console.Clear();
+				Console.WriteLine("Menu Samouczków");
+				string[] options = new string[tutorials.Length + 1];
+				options[0] = "Powrót";
+				for (int i = 1; i <= tutorials.Length; i++)
+				{
+					options[i] = tutorials[i-1].Name;
+				}
+				int val = ContextMenu.SummonAt(0, 2, "Wybierz samouczek:", options, ConsoleColor.Yellow);
+				switch (val)
+				{
+					case 0:
+						return;
+					default:
+						tutorials[val - 1].Start();
+						if (tutorials[val-1].IsCompleted)
+						{
+							Console.WriteLine("Samouczek ukończony. Naciśnij dowolny klawisz, aby kontynuować.");
+							Console.ReadKey();
+						}
+						break;
+				}
+			}
 		}
 	}
 }
