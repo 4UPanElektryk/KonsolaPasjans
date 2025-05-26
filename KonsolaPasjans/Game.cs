@@ -23,7 +23,7 @@ namespace KonsolaPasjans
 			get {
 				if (selection == 0) { /* Deck */ return new Card[] { Deck[0] }; }
 				else if (selection == 1) { /* Discard pile */ return new Card[] { DiscardPile.Last() }; }
-				else if (selection > 1 && selection < 6) { /* Foundation (Only 1 card) */ return new Card[] { new Card(foundation[selection - 2], (CardColor)(selection - 2)) }; }
+				else if (selection > 1 && selection < 6) { /* Foundation (Only 1 card) */ return new Card[] { new Card(foundation[selection - 2], (CardColor)(selection - 2)) { IsFaceUp = true } }; }
 				else if (selection > 5) { /* Column */ return cards[selection - 6].Skip(cards[selection - 6].Count - selectionCount).ToArray(); }
 				return new Card[0]; 
 			} 
@@ -36,6 +36,7 @@ namespace KonsolaPasjans
 
 		private bool isDeckSelected { get { return cursor == 0; } }
 		private bool isDiscardSelected { get { return cursor == 1; } }
+		private bool isFoundationSelected { get { return cursor > 1 && cursor < 6; } }
 		private bool areCardsSelected { get { return cursor > 5;  } }
 		private bool isCardBeingMoved { get { return selection != -1; } }
 
@@ -152,9 +153,11 @@ namespace KonsolaPasjans
 					//TODO: Game won logic
 
 					Console.Clear();
-					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 1);
-					Console.ForegroundColor = ConsoleColor.Green;
+					Console.ForegroundColor = ConsoleColor.White;
+					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 2);
 					Console.WriteLine("You won the game!");
+					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 1);
+					Console.WriteLine($"You made {history.TotalCount} moves");
 					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2);
 					Console.WriteLine("Press any key to exit...");
 					Console.ReadKey(true);
@@ -223,7 +226,8 @@ namespace KonsolaPasjans
 					{
 						// Same Card Selected
 						/*int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } ); FullReRender = true;
-						if (ret == 1) { */selection = -1; selectionCount = 0; this.cursor = 0; //}
+						if (ret == 1) { */
+						selection = -1; selectionCount = 0; this.cursor = 0; //}
 					}
 					else if (FindIfValidTarget())
 					{
@@ -265,7 +269,7 @@ namespace KonsolaPasjans
 					selection = cursor;
 					Debug.WriteLine(selectionCards[0].ToString());
 				}
-				if (areCardsSelected && !(cards[cursor - 6].Count == 0)) // if cards are selected and the column is not empty
+				else if (areCardsSelected && !(cards[cursor - 6].Count == 0)) // if cards are selected and the column is not empty
 				{
 					if (DiscoverMaxSelection() == 1)
 					{
@@ -317,7 +321,12 @@ namespace KonsolaPasjans
 						FullReRender = true;
 					}
 				}
-				//TODO: Foundation
+				else if (isFoundationSelected && (foundation[cursor - 2] != CardValue.None)) //Foundation Selected and the colums are not empty
+				{
+					selectionCount = 1;
+					selection = cursor;
+					Debug.WriteLine(selectionCards[0].ToString());
+				}
 
 			}
 		}
@@ -425,8 +434,8 @@ namespace KonsolaPasjans
 			if (move.From == 0)
 			{
 				//Deck
-				movedcards = new Card[] { Deck[0] };
-				Deck.RemoveAt(0);
+				movedcards = Deck.Take(move.Cards).ToArray();
+				Deck.RemoveRange(0, move.Cards);
 			}
 			else if (move.From > 5)
 			{
@@ -484,14 +493,8 @@ namespace KonsolaPasjans
 			Move last = history.RemoveLast();
 			DoMove(last.Undo());
 		}
-		private void MoveCard(bool singlecard = false)
+		private void MoveCard()
 		{
-			if (IsHardDifficulty && !singlecard)
-			{
-				MoveCard(true);
-				MoveCard(true);
-				MoveCard(true);
-			}
 			if (Deck.Count == 0)
 			{
 				FullReRender = true;
@@ -507,9 +510,27 @@ namespace KonsolaPasjans
 				ShuffleDeck();
 				return;
 			}
-			Deck[0].IsFaceUp = true;
-			DiscardPile.Add(Deck[0]);
-			Deck.RemoveAt(0);
+			if (IsHardDifficulty)
+			{
+				int count = Deck.Count;
+				if (count > 3) { count = 3; }
+				Move move = new Move(0, 1, count);
+				for (int i = 0; i < count; i++)
+				{
+					Deck[i].IsFaceUp = true;
+					Deck[i].IsSelected = false;
+				}
+				DoMove(move);
+				FullReRender = true;
+			}
+			else
+			{
+
+				Deck[0].IsFaceUp = true;
+				Move move = new Move(0, 1, 1);
+				DiscardPile.Add(Deck[0]);
+				Deck.RemoveAt(0);
+			}
 		}
 		#endregion
 		#region Screen Display

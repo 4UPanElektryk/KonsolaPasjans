@@ -6,6 +6,7 @@ namespace KonsolaPasjans
 		private Move[] moves;
 		private int MoveCount;
 		public int Count { get { return MoveCount; } }
+		public int TotalCount;
 		public Move this[int index]
 		{
 			get { return moves[index]; }
@@ -14,9 +15,11 @@ namespace KonsolaPasjans
 		public ManagedMoveHistory(int maxsize) {
 			moves = new Move[maxsize];
 			MoveCount = 0;
+			TotalCount = 0;
 		}
 		public void Add(Move move)
 		{
+			TotalCount++;
 			if (MoveCount < moves.Length)
 			{
 				moves[MoveCount] = move;
