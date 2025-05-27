@@ -55,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tutorials\TutorialCursor.cs" />
     <Compile Include="Tutorials\Tutorial.cs" />
+    <Compile Include="Tutorials\TutorialSingleCardMoves.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -23,12 +23,12 @@ namespace KonsolaPasjans
 					if (i == selectedOption)
 					{
 						Console.ForegroundColor = color;
-						Console.Write($"> {options[i].PadLeft(max)}");
+						Console.Write($"> {options[i].PadRight(max)}");
 					}
 					else
 					{
 						Console.ForegroundColor = ConsoleColor.Gray;
-						Console.Write($"  {options[i].PadLeft(max)}");
+						Console.Write($"  {options[i].PadRight(max)}");
 					}
 				}
 				ConsoleKeyInfo key = Console.ReadKey(true);

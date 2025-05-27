@@ -11,6 +11,7 @@ namespace KonsolaPasjans
 			Console.ResetColor();
 			while (true)
 			{
+				Console.CursorVisible = false;
 				Console.BackgroundColor = ConsoleColor.Black;
 				Console.ForegroundColor = ConsoleColor.Gray;
 				Console.SetWindowSize(80, 36);
@@ -55,7 +56,8 @@ namespace KonsolaPasjans
 		{
 			Tutorial[] tutorials = new Tutorial[]
 			{
-				new Tutorials.TutorialCursor()
+				new Tutorials.TutorialCursor(),
+				new Tutorials.TutorialSingleCardMoves(),
 			};
 			while (true)
 			{
@@ -68,7 +70,7 @@ namespace KonsolaPasjans
 				options[0] = "Powrót";
 				for (int i = 1; i <= tutorials.Length; i++)
 				{
-					options[i] = tutorials[i-1].Name;
+					options[i] = (tutorials[i-1].IsCompleted ? "[X] " : "[ ] ") + tutorials[i-1].Name;
 				}
 				int val = ContextMenu.SummonAt(0, 2, "Wybierz samouczek:", options, ConsoleColor.Yellow);
 				switch (val)

@@ -5,7 +5,7 @@ namespace KonsolaPasjans.Tutorials
     class TutorialCursor : Tutorial
     {
 		private Card[] _cards;
-		private int selectedCardIndex = 4;
+		private int _cursor = 4;
 		private bool MovedUp = false;
 		private bool MovedDown = false;
 		private bool MovedLeft = false;
@@ -36,8 +36,8 @@ namespace KonsolaPasjans.Tutorials
 			Console.WriteLine("Aby przesunąć kursor, użyj strzałek na klawiaturze.");
 			Console.WriteLine("Zaznaczona karta będzie się podświetlała na żółto");
 			Console.WriteLine("Aby zakończyć ten samouczek, przemieść kursor przynajmniej raz w każdym kierunku lub naciśnij 'Esc'.");
+			Console.WriteLine("Naciśnij dowolny przycisk aby zacząć.");
 			Console.WriteLine("Powodzenia!");
-			// Logic to handle movement tutorial
 			Console.ReadKey(true); // Wait for the user to press a key before starting the tutorial
 			Console.Clear();
 			while (true)
@@ -52,31 +52,32 @@ namespace KonsolaPasjans.Tutorials
 				else if (key == ConsoleKey.UpArrow)
 				{
 					MovedUp = true;
-					selectedCardIndex -= 3; // Move up in the array
-					if (selectedCardIndex < 0) selectedCardIndex += _cards.Length; // Prevent going out of bounds
+					_cursor -= 3; // Move up in the array
+					if (_cursor < 0) _cursor += _cards.Length; // Prevent going out of bounds
 				}
 				else if (key == ConsoleKey.DownArrow)
 				{
 					MovedDown = true;
-					selectedCardIndex += 3; // Move down in the array
-					if (selectedCardIndex >= _cards.Length) selectedCardIndex -= _cards.Length; // Prevent going out of bounds
+					_cursor += 3; // Move down in the array
+					if (_cursor >= _cards.Length) _cursor -= _cards.Length; // Prevent going out of bounds
 				}
 				else if (key == ConsoleKey.LeftArrow)
 				{
 					MovedLeft = true;
-					selectedCardIndex -= 1; // Move left in the array
-					if (selectedCardIndex < 0) selectedCardIndex += _cards.Length; // Prevent going out of bounds
+					_cursor -= 1; // Move left in the array
+					if (_cursor < 0) _cursor += _cards.Length; // Prevent going out of bounds
 				}
 				else if (key == ConsoleKey.RightArrow)
 				{
 					MovedRight = true;
-					selectedCardIndex += 1; // Move right in the array
-					if (selectedCardIndex >= _cards.Length) selectedCardIndex -= _cards.Length; // Prevent going out of bounds
+					_cursor += 1; // Move right in the array
+					if (_cursor >= _cards.Length) _cursor -= _cards.Length; // Prevent going out of bounds
 				}
 				else if (key == ConsoleKey.Enter)
 				{
 					if (IsCompleted)
 					{
+						Console.Clear();
 						Console.WriteLine("Samouczek zakończony. Dziękujemy za udział!");
 						return; // Exit the tutorial
 					}
@@ -113,7 +114,7 @@ namespace KonsolaPasjans.Tutorials
 			{
 				int x = (i % xlimit) * 10; // Calculate x position based on index
 				int y = (i / xlimit) * 5 + 7; // Calculate y position based on index
-				_cards[i].IsSelected = (i == selectedCardIndex); // Highlight the selected card
+				_cards[i].IsSelected = (i == _cursor); // Highlight the selected card
 				_cards[i].Display(x, y); // Display the card at the calculated position
 			}
 		}
