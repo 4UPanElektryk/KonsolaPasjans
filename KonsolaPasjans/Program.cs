@@ -17,6 +17,7 @@ namespace KonsolaPasjans
 				Console.SetWindowSize(80, 36);
 				Console.Clear();
 				Console.WriteLine("Witaj w Pasjansie!");
+				Console.WriteLine("Wybierasz przy użyciu strzałek góra, dół i klawisza Enter");
 				int val = ContextMenu.SummonAt(0, 2, "Wybierz opcję:", new string[] { "Nowa Gra", "Samouczek", "Wyjdź z gry" }, ConsoleColor.Yellow, true);
 				switch (val)
 				{
@@ -67,6 +68,8 @@ namespace KonsolaPasjans
 				Console.SetWindowSize(80, 36);
 				Console.Clear();
 				Console.WriteLine("Menu Samouczków");
+				Console.WriteLine("Wybierasz przy użyciu strzałek góra, dół i klawisza Enter");
+
 				string[] options = new string[tutorials.Length + 1];
 				options[0] = "Powrót";
 				for (int i = 1; i <= tutorials.Length; i++)
@@ -83,6 +86,9 @@ namespace KonsolaPasjans
 						tutorials[val - 1].Start();
 						if (tutorials[val-1].IsCompleted)
 						{
+							Console.ForegroundColor = ConsoleColor.White;
+							Console.BackgroundColor = ConsoleColor.Black;
+							Console.Clear();
 							Console.WriteLine("Samouczek ukończony. Naciśnij dowolny klawisz, aby kontynuować.");
 							Console.ReadKey();
 						}

@@ -443,7 +443,7 @@ namespace KonsolaPasjans
 
 				movedcards = cards[move.From - 6].Skip(cards[move.From - 6].Count - move.Cards).ToArray();
 				cards[move.From - 6].RemoveRange(cards[move.From - 6].Count - move.Cards, move.Cards);
-				if (cards[move.From - 6].Count > 0)
+				if (!move.UndoMove && cards[move.From - 6].Count > 0)
 				{
 					move.WasCardBelowCovered = !cards[move.From - 6].Last().IsFaceUp;
 				}

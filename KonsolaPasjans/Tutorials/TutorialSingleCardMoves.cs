@@ -9,6 +9,7 @@ namespace KonsolaPasjans.Tutorials
 		private List<Card>[] _cardsColumns;
 		private int _cursor = 1;
 		private int selection = -1; // -1 means no selection
+		private bool firstCardSelected = false;
 
 		public TutorialSingleCardMoves() : base()
 		{
@@ -51,12 +52,23 @@ namespace KonsolaPasjans.Tutorials
 			Console.Clear();
 			while (true)
 			{
+				for (int i = 0; i < _cardsColumns.Length; i++)
+				{
+					_cardsColumns[i].Last().IsFaceUp = true;
+				}
 				Draw(); // Draw the current state of the tutorial
 				var key = Console.ReadKey(true).Key;
 				if (key == ConsoleKey.Escape)
 				{
-					IsCompleted = false;
-					return;
+					if (selection == -1)
+					{
+						IsCompleted = false;
+						return;
+					}
+					else
+					{
+						selection = -1; // Deselect the card
+					}
 				}
 				if (key == ConsoleKey.LeftArrow)
 				{
@@ -77,28 +89,29 @@ namespace KonsolaPasjans.Tutorials
 					if (selection == -1)
 					{
 						selection = _cursor; // Select the current card
+						firstCardSelected = true;
 					}
 					else if (_cardsColumns[_cursor].Last().IsValidTarget(_cardsColumns[selection].Last()))
 					{
-						Console.WriteLine("Wybrano Kartę poprawnie");
-						Console.ReadKey(true);
+						_cardsColumns[_cursor].Add(_cardsColumns[selection].Last());
+						_cardsColumns[selection].RemoveAt(_cardsColumns[selection].Count - 1);
 						selection = -1; // Deselect the card
-						
+						IsCompleted = true;
 					}
 				}
 			}
 		}
 		private void Draw()
 		{
-			int skiplines = 5;
+			int skiplines = 4;
 			Console.BackgroundColor = ConsoleColor.DarkGreen;
 			Console.ForegroundColor = ConsoleColor.White;
 			Console.Clear();
-			Console.WriteLine("Samouczek Ruchów Pojedynczych Kart");
-			Console.WriteLine("Użyj strzałek, aby przesunąć kursor na kartę.");
-			Console.WriteLine("Aby wybrać kartę do przniesienia naciśnij 'Enter'");
-			Console.WriteLine("Zaznaczona karta jest podświetlona na żółto.");
-			Console.WriteLine("Naciśnij 'ESC' Aby Przerwać");
+			Console.WriteLine("Zadania:");
+			char SelectCard = firstCardSelected ? 'X' : ' ';
+			char MoveCard = IsCompleted ? 'X' : ' ';
+			Console.WriteLine($"[{SelectCard}] Wybierz kartę do przeniesienia");
+			Console.WriteLine($"[{MoveCard}] Przenieś kartę");
 			if (IsCompleted)
 			{
 				Console.WriteLine("Naciśnij 'Enter' Aby Zakończyć");
@@ -139,7 +152,16 @@ namespace KonsolaPasjans.Tutorials
 				Console.SetCursorPosition(62, i);
 				Console.Write("║");
 			}
+			Console.SetCursorPosition(64, 0);
+			Console.WriteLine("Wybrane Karty: ");
 			#region Selected Cards
+			if (selection != -1)
+			{
+				int x = 64, y = 1;
+				Card card = new Card(_cardsColumns[selection].Last());
+				card.Display(x, y);
+			}
+
 
 			#endregion
 		}
