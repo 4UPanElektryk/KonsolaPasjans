@@ -2,8 +2,8 @@
 
 namespace KonsolaPasjans
 {
-    public class Card
-    {
+	public class Card
+	{
 		public CardValue Value { get; set; }
 		public CardColor Color { get; set; }
 		public bool IsFaceUp { get; set; } = false;

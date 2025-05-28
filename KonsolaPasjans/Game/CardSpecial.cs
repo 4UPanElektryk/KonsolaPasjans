@@ -2,8 +2,8 @@
 
 namespace KonsolaPasjans
 {
-    public class CardSpecial : Card
-    {
+	public class CardSpecial : Card
+	{
 		/// <summary>
 		/// Special card constructor
 		/// </summary>

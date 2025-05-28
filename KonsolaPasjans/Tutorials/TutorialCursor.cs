@@ -2,8 +2,8 @@
 
 namespace KonsolaPasjans.Tutorials
 {
-    class TutorialCursor : Tutorial
-    {
+	class TutorialCursor : Tutorial
+	{
 		private Card[] _cards;
 		private int _cursor = 4;
 		private bool MovedUp = false;

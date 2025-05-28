@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KonsolaPasjans.Tutorials
 {
@@ -10,10 +8,11 @@ namespace KonsolaPasjans.Tutorials
 	{
 		private List<Card>[] _cardsColumns;
 		private int _cursor = 1;
+		private int selection = -1; // -1 means no selection
 
 		public TutorialSingleCardMoves() : base()
 		{
-			Name = "Samouczek Ruchów Pojedynczych Kart";
+			Name = "Samouczek Ruchów Kart (1/2)";
 			// Initialization logic if needed
 			_cardsColumns = new List<Card>[]{
 				new List<Card>()
@@ -71,13 +70,27 @@ namespace KonsolaPasjans.Tutorials
 				}
 				else if (key == ConsoleKey.Enter)
 				{
-
+					if (IsCompleted)
+					{
+						return;
+					}
+					if (selection == -1)
+					{
+						selection = _cursor; // Select the current card
+					}
+					else if (_cardsColumns[_cursor].Last().IsValidTarget(_cardsColumns[selection].Last()))
+					{
+						Console.WriteLine("Wybrano Kartę poprawnie");
+						Console.ReadKey(true);
+						selection = -1; // Deselect the card
+						
+					}
 				}
 			}
 		}
 		private void Draw()
 		{
-			int skiplines = 3;
+			int skiplines = 5;
 			Console.BackgroundColor = ConsoleColor.DarkGreen;
 			Console.ForegroundColor = ConsoleColor.White;
 			Console.Clear();
@@ -85,7 +98,12 @@ namespace KonsolaPasjans.Tutorials
 			Console.WriteLine("Użyj strzałek, aby przesunąć kursor na kartę.");
 			Console.WriteLine("Aby wybrać kartę do przniesienia naciśnij 'Enter'");
 			Console.WriteLine("Zaznaczona karta jest podświetlona na żółto.");
-			Console.WriteLine("Nacis");
+			Console.WriteLine("Naciśnij 'ESC' Aby Przerwać");
+			if (IsCompleted)
+			{
+				Console.WriteLine("Naciśnij 'Enter' Aby Zakończyć");
+			}
+
 			#region Cards Columns
 			for (int i = 0; i < _cardsColumns.Length; i++)
 			{
@@ -115,6 +133,12 @@ namespace KonsolaPasjans.Tutorials
 				}
 			}
 			#endregion
+			Console.ForegroundColor = ConsoleColor.White;
+			for (int i = 0; i < Console.WindowHeight; i++)
+			{
+				Console.SetCursorPosition(62, i);
+				Console.Write("║");
+			}
 			#region Selected Cards
 
 			#endregion

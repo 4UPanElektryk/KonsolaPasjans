@@ -1,7 +1,7 @@
 ﻿namespace KonsolaPasjans
 {
-    public enum CardColor
-    {
+	public enum CardColor
+	{
 		Diamonds = 0,
 		Clubs = 1,
 		Hearts = 2,

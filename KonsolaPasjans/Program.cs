@@ -17,7 +17,7 @@ namespace KonsolaPasjans
 				Console.SetWindowSize(80, 36);
 				Console.Clear();
 				Console.WriteLine("Witaj w Pasjansie!");
-				int val = ContextMenu.SummonAt(0, 2, "Wybierz opcję:", new string[] { "Nowa Gra", "Samouczek", "Wyjdź z gry" }, ConsoleColor.Yellow);
+				int val = ContextMenu.SummonAt(0, 2, "Wybierz opcję:", new string[] { "Nowa Gra", "Samouczek", "Wyjdź z gry" }, ConsoleColor.Yellow, true);
 				switch (val)
 				{
 					case 0: // Nowa Gra
@@ -26,6 +26,7 @@ namespace KonsolaPasjans
 					case 1: // Samouczek
 						TutorialMenu();
 						break;
+					case -1:
 					case 2: // Wyjdź z gry
 						Exit();
 						break;
@@ -35,8 +36,8 @@ namespace KonsolaPasjans
 		static private void StartNewGame()
 		{
 			Console.Clear();
-			int val = ContextMenu.SummonAt(0, 2, "Wybierz poziom trudności:", new string[] { "Prosty", "Trudny", "Powrót" }, ConsoleColor.Yellow);
-			if (val == 2)
+			int val = ContextMenu.SummonAt(0, 2, "Wybierz poziom trudności:", new string[] { "Prosty", "Trudny", "Powrót" }, ConsoleColor.Yellow, true);
+			if (val == 2 || val == -1)
 			{
 				return; // Return to main menu
 			}
@@ -72,9 +73,10 @@ namespace KonsolaPasjans
 				{
 					options[i] = (tutorials[i-1].IsCompleted ? "[X] " : "[ ] ") + tutorials[i-1].Name;
 				}
-				int val = ContextMenu.SummonAt(0, 2, "Wybierz samouczek:", options, ConsoleColor.Yellow);
+				int val = ContextMenu.SummonAt(0, 2, "Wybierz samouczek:", options, ConsoleColor.Yellow, true);
 				switch (val)
 				{
+					case -1:
 					case 0:
 						return;
 					default:

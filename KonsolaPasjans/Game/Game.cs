@@ -7,7 +7,7 @@ namespace KonsolaPasjans
 {
 	// Game of Solitaire
 	public class Game
-    {
+	{
 
 		// Cards And stuff
 		private List<Card> Deck { get; set; } = new List<Card>();
@@ -227,7 +227,7 @@ namespace KonsolaPasjans
 						// Same Card Selected
 						/*int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } ); FullReRender = true;
 						if (ret == 1) { */
-						selection = -1; selectionCount = 0; this.cursor = 0; //}
+						selection = -1; selectionCount = 0; //this.cursor = 0; //}
 					}
 					else if (FindIfValidTarget())
 					{
@@ -237,9 +237,9 @@ namespace KonsolaPasjans
 						else if (ret == 0)
 						{*/
 							Move move = new Move(selection, cursor, selectionCount);
-							DoMove(move);
+							DoMove(ref move);
 							history.Add(move);
-							selection = -1; cursor = 0;
+							selection = -1; // cursor = 0;
 						//}
 						FullReRender = true;
 					}
@@ -254,9 +254,9 @@ namespace KonsolaPasjans
 					else if (FindIfValidTarget())
 					{
 						Move move = new Move(selection, cursor, selectionCount);
-						DoMove(move);
+						DoMove(ref move);
 						history.Add(move);
-						selection = -1; cursor = 0;
+						selection = -1; // cursor = 0;
 						FullReRender = true;
 					}
 				}
@@ -291,7 +291,7 @@ namespace KonsolaPasjans
 							{
 								//exit cancel selection
 								selection = -1; 
-								this.cursor = 0; 
+								//this.cursor = 0; 
 								break;
 							}
 							else if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
@@ -428,7 +428,7 @@ namespace KonsolaPasjans
 			Random rand = new Random();
 			Deck = Deck.OrderBy(x => rand.Next()).ToList();
 		}
-		private void DoMove(Move move)
+		private void DoMove(ref Move move)
 		{
 			Card[] movedcards = null;
 			if (move.From == 0)
@@ -440,8 +440,13 @@ namespace KonsolaPasjans
 			else if (move.From > 5)
 			{
 				// Column
+
 				movedcards = cards[move.From - 6].Skip(cards[move.From - 6].Count - move.Cards).ToArray();
 				cards[move.From - 6].RemoveRange(cards[move.From - 6].Count - move.Cards, move.Cards);
+				if (cards[move.From - 6].Count > 0)
+				{
+					move.WasCardBelowCovered = !cards[move.From - 6].Last().IsFaceUp;
+				}
 			}
 			else if (move.From > 1)
 			{
@@ -474,6 +479,10 @@ namespace KonsolaPasjans
 			else if (move.To > 5)
 			{
 				// Column
+				if (move.UndoMove)
+				{
+					cards[move.To - 6].Last().IsFaceUp = !move.WasCardBelowCovered;
+				}
 				cards[move.To - 6].AddRange(movedcards);
 			}
 			else if (move.To > 1)
@@ -491,7 +500,8 @@ namespace KonsolaPasjans
 				return;
 			}
 			Move last = history.RemoveLast();
-			DoMove(last.Undo());
+			Move undo = last.Undo();
+			DoMove(ref undo);
 		}
 		private void MoveCard()
 		{
@@ -503,7 +513,7 @@ namespace KonsolaPasjans
 					DiscardPile[i].IsFaceUp = false;
 				}
 				Move move = new Move(1, 0, DiscardPile.Count);
-				DoMove(move);
+				DoMove(ref move);
 				history.Add(move);
 
 				return;
@@ -518,7 +528,7 @@ namespace KonsolaPasjans
 					Deck[i].IsFaceUp = true;
 					Deck[i].IsSelected = false;
 				}
-				DoMove(move);
+				DoMove(ref move);
 				history.Add(move);
 				FullReRender = true;
 			}
@@ -527,7 +537,7 @@ namespace KonsolaPasjans
 
 				Deck[0].IsFaceUp = true;
 				Move move = new Move(0, 1, 1);
-				DoMove(move);
+				DoMove(ref move);
 				history.Add(move);
 			}
 		}

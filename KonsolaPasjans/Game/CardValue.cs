@@ -1,7 +1,7 @@
 ﻿namespace KonsolaPasjans
 {
-    public enum CardValue
-    {
+	public enum CardValue
+	{
 		None = 0,
 		Ace = 1,
 		Two = 2,

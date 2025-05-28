@@ -4,7 +4,7 @@ namespace KonsolaPasjans
 {
     public class ContextMenu
     {
-        public static int SummonAt(int x, int y,string Title, string[] options, ConsoleColor color = ConsoleColor.White)
+        public static int SummonAt(int x, int y,string Title, string[] options, ConsoleColor color = ConsoleColor.White, bool allowEscReturn = false)
         {
 			int max = Title.Length;
 			foreach (var item in options)
@@ -32,10 +32,10 @@ namespace KonsolaPasjans
 					}
 				}
 				ConsoleKeyInfo key = Console.ReadKey(true);
-				/*if (key.Key == ConsoleKey.Escape)
+				if (key.Key == ConsoleKey.Escape && allowEscReturn)
 				{
 					return -1;
-				}*/
+				}
 				if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
 				{
 					return selectedOption;
