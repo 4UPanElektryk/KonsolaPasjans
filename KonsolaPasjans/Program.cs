@@ -44,7 +44,7 @@ namespace KonsolaPasjans
 			Console.SetCursorPosition(0, 0);
 
 			Console.WriteLine("Ranking:");
-			Console.WriteLine("Imię gracza                    Ruchy  Data         Tryb");
+			Console.WriteLine("Imię gracza                    Ruchy  Data       Tryb");
 			Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 			foreach (var entry in Ranking.RankingManager.GetEntries())
 			{
