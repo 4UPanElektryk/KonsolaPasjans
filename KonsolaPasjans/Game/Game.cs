@@ -151,16 +151,7 @@ namespace KonsolaPasjans
 				if (IsGameWon())
 				{
 					//TODO: Game won logic
-
-					Console.Clear();
-					Console.ForegroundColor = ConsoleColor.White;
-					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 2);
-					Console.WriteLine("You won the game!");
-					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 1);
-					Console.WriteLine($"You made {history.TotalCount} moves");
-					Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2);
-					Console.WriteLine("Press any key to exit...");
-					Console.ReadKey(true);
+					GameFinished();
 					break; // Exit the game loop
 				}
 				#endregion
@@ -168,6 +159,22 @@ namespace KonsolaPasjans
 			Console.CursorVisible = true;
 		}
 		#region Selection Logic
+		private void GameFinished()
+		{
+			Console.Clear();
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.SetCursorPosition(0, 0);
+			Console.WriteLine("Wygrałeś");
+			Console.WriteLine($"Dokonałeś {history.TotalCount} ruchów");
+			int ret = ContextMenu.SummonAt(0, 2, "Czy chcesz zapisać wynik", new string[] { "Tak", "Nie" }, ConsoleColor.Yellow, true);
+			Console.WriteLine();
+			if (ret == 0)
+			{
+				Console.Write("Podaj Imię: ");
+				string name = Console.ReadLine();
+				Ranking.RankingManager.Add(name, history.TotalCount, IsHardDifficulty);
+			}
+		}
 		private bool FindIfValidTarget()
 		{
 			Card[] movedcards = selectionCards;
@@ -436,6 +443,10 @@ namespace KonsolaPasjans
 				//Deck
 				movedcards = Deck.Take(move.Cards).ToArray();
 				Deck.RemoveRange(0, move.Cards);
+				if (!move.UndoMove)
+				{
+					move.WasCardBelowCovered = true;
+				}
 			}
 			else if (move.From > 5)
 			{
@@ -469,7 +480,24 @@ namespace KonsolaPasjans
 			if (move.To == 0)
 			{
 				// Deck
-				Deck.AddRange(movedcards);
+				if (move.UndoMove)
+				{
+					List<Card> TempDeck = Deck;
+					Deck = new List<Card>();
+					if (move.WasCardBelowCovered)
+					{
+						foreach (Card item in movedcards)
+						{
+							item.IsFaceUp = false;
+						}
+					}
+					Deck.AddRange(movedcards);
+					Deck.AddRange(TempDeck);
+				}
+				else
+				{
+					Deck.AddRange(movedcards);
+				}
 			}
 			else if (move.To == 1)
 			{
@@ -604,7 +632,7 @@ namespace KonsolaPasjans
 				return;
 			}
 			cards[column][cards[column].Count - 1].IsSelected = column == cursor - 6;
-			foreach (var card in cards[column])
+			foreach (Card card in cards[column])
 			{
 				card.Display(x, y);
 				y += 2;

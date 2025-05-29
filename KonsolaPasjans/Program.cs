@@ -8,6 +8,7 @@ namespace KonsolaPasjans
 		private static Tutorial[] tutorials;
 		static void Main(string[] args)
 		{
+			Ranking.RankingManager.Load();
 			Console.OutputEncoding = Encoding.UTF8;
 			Console.ResetColor();
 			while (true)
@@ -18,21 +19,43 @@ namespace KonsolaPasjans
 				Console.SetWindowSize(80, 36);
 				Console.Clear();
 				Console.WriteLine("Witaj w Pasjansie!");
-				int val = ContextMenu.SummonAt(0, 1, "Wybierz opcję przy użyciu strzałek góra, dół oraz zatwierź klawiszem Enter:", new string[] { "Nowa Gra", "Samouczek", "Wyjdź z gry" }, ConsoleColor.Yellow, true);
+				int val = ContextMenu.SummonAt(0, 1, "Wybierz opcję przy użyciu strzałek góra, dół oraz zatwierź klawiszem Enter:", new string[] { "Nowa Gra", "Ranking", "Samouczek", "Wyjdź z gry" }, ConsoleColor.Yellow, true);
 				switch (val)
 				{
 					case 0: // Nowa Gra
 						StartNewGame();
 						break;
-					case 1: // Samouczek
+					case 1:
+						ShowRanking();
+						break;
+					case 2: // Samouczek
 						TutorialMenu();
 						break;
 					case -1:
-					case 2: // Wyjdź z gry
+					case 3: // Wyjdź z gry
 						Exit();
 						break;
 				}
 			}
+		}
+		static private void ShowRanking()
+		{
+			Console.Clear();
+			Console.SetCursorPosition(0, 0);
+
+			Console.WriteLine("Ranking:");
+			Console.WriteLine("Imię gracza                    Ruchy  Data         Tryb");
+			Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+			foreach (var entry in Ranking.RankingManager.GetEntries())
+			{
+				string TrybGry = entry.HardMode ? "Trudny" : "Prosty";
+				//Console.ForegroundColor = entry.HardMode ? ConsoleColor.Red : ConsoleColor.Green;
+				Console.WriteLine($"{entry.PlayerName.PadRight(30)}  {entry.Moves.ToString().PadLeft(4)}  {entry.Date.ToShortDateString()} ({TrybGry})");
+				//Console.WriteLine($"{entry.PlayerName.PadRight(30)}  {entry.Moves.ToString().PadLeft(4)} {entry.Date.ToShortDateString()}");
+			}
+			Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+			Console.WriteLine("Naciśnij dowolny klawisz, aby wrócić do menu głównego.");
+			Console.ReadKey(true); // Wait for the user to press a key before returning to the main menu
 		}
 		static private void StartNewGame()
 		{

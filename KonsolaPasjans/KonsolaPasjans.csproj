@@ -53,6 +53,8 @@
     <Compile Include="Game\Move.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ranking\RankingInfo.cs" />
+    <Compile Include="Ranking\RankingManager.cs" />
     <Compile Include="Tutorials\TutorialCursor.cs" />
     <Compile Include="Tutorials\Tutorial.cs" />
     <Compile Include="Tutorials\TutorialMultipleCardMoves.cs" />
