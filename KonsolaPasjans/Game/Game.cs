@@ -53,8 +53,8 @@ namespace KonsolaPasjans
 			{
 				Display();
 				#region User Input
-				ConsoleKeyInfo key = Console.ReadKey(true);
-				if (key.Key == ConsoleKey.LeftArrow)
+				ConsoleKey key = Console.ReadKey(true).Key;
+				if (key == ConsoleKey.LeftArrow)
 				{
 					cursor--;
 					if (cursor < 0)
@@ -66,7 +66,7 @@ namespace KonsolaPasjans
 						cursor--;
 					}
 				}
-				else if (key.Key == ConsoleKey.RightArrow)
+				else if (key == ConsoleKey.RightArrow)
 				{
 					cursor++;
 					if (cursor > 12)
@@ -78,7 +78,7 @@ namespace KonsolaPasjans
 						cursor++;
 					}
 				}
-				else if (key.Key == ConsoleKey.UpArrow)
+				else if (key == ConsoleKey.UpArrow)
 				{
 					if (cursor == 6)
 					{
@@ -101,7 +101,7 @@ namespace KonsolaPasjans
 						cursor--;
 					}
 				}
-				else if (key.Key == ConsoleKey.DownArrow)
+				else if (key == ConsoleKey.DownArrow)
 				{
 					if (isDeckSelected)
 					{
@@ -124,7 +124,7 @@ namespace KonsolaPasjans
 						}
 					}
 				}
-				else if (key.Key == ConsoleKey.Spacebar || key.Key == ConsoleKey.Enter)
+				else if (key == ConsoleKey.Spacebar || key == ConsoleKey.Enter)
 				{
 					Debug.WriteLine($"Selected {cursor}");
 					if (cursor > 5 && cards[cursor - 6].Count > 0)
@@ -133,7 +133,7 @@ namespace KonsolaPasjans
 					}
 					RunAction();
 				}
-				else if (key.Key == ConsoleKey.Escape)
+				else if (key == ConsoleKey.Escape)
 				{
 					if (isCardBeingMoved)
 					{
@@ -286,22 +286,22 @@ namespace KonsolaPasjans
 						while (true)
 						{
 							DisplaySelection(count); // Display the selection with the current count
-							ConsoleKeyInfo key = Console.ReadKey(true);
-							if(key.Key == ConsoleKey.Escape)
+							ConsoleKey key = Console.ReadKey(true).Key;
+							if(key == ConsoleKey.Escape)
 							{
 								//exit cancel selection
 								selection = -1; 
 								//this.cursor = 0; 
 								break;
 							}
-							else if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
+							else if (key == ConsoleKey.Enter || key == ConsoleKey.Spacebar)
 							{
 								//exit selection
 								selection = cursor;
 								selectionCount = count;
 								break;
 							}
-							else if(key.Key == ConsoleKey.UpArrow)
+							else if(key == ConsoleKey.UpArrow)
 							{
 								count++;
 								if (count > selectionCount)
@@ -309,7 +309,7 @@ namespace KonsolaPasjans
 									count = 1;
 								}
 							}
-							else if (key.Key == ConsoleKey.DownArrow)
+							else if (key == ConsoleKey.DownArrow)
 							{
 								count--;
 								if (count < 1)

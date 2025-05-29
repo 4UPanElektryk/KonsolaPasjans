@@ -14,6 +14,15 @@ namespace KonsolaPasjans.Tutorials
 		{
 			Name = "Samouczek Kursora";
 			// Initialization logic if needed
+			
+		}
+		private void Clear()
+		{
+			_cursor = 4;
+			MovedUp = false;
+			MovedDown = false;
+			MovedLeft = false;
+			MovedRight = false;
 			_cards = new Card[9]
 			{
 				new Card(CardValue.Ace, CardColor.Hearts) { IsFaceUp = true },
@@ -29,13 +38,14 @@ namespace KonsolaPasjans.Tutorials
 		}
 		public override void Start()
 		{
+			Clear();
 			Console.BackgroundColor = ConsoleColor.DarkGreen;
 			Console.ForegroundColor = ConsoleColor.White;
 			Console.Clear();
 			Console.WriteLine("Witaj w samouczku kursora w Pasjansie!");
-			Console.WriteLine("Aby przesunąć kursor, użyj strzałek na klawiaturze.");
+			Console.WriteLine("Użyj strzałek na klawiaturze aby przesunąć kursor");
 			Console.WriteLine("Zaznaczona karta będzie się podświetlała na żółto");
-			Console.WriteLine("Aby zakończyć ten samouczek, przemieść kursor przynajmniej raz w każdym kierunku lub naciśnij 'Esc'.");
+			Console.WriteLine("Przemieść kursor przynajmniej raz w każdym kierunku lub naciśnij 'Esc' Aby zakończyć ten samouczek, ");
 			Console.WriteLine("Naciśnij dowolny przycisk aby zacząć.");
 			Console.WriteLine("Powodzenia!");
 			Console.ReadKey(true); // Wait for the user to press a key before starting the tutorial
@@ -43,7 +53,7 @@ namespace KonsolaPasjans.Tutorials
 			while (true)
 			{
 				Draw(); // Draw the current state of the tutorial
-				var key = Console.ReadKey(true).Key;
+				ConsoleKey key = Console.ReadKey(true).Key;
 				if (key == ConsoleKey.Escape)
 				{
 					IsCompleted = false;

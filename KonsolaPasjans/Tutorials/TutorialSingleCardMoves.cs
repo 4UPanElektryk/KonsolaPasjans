@@ -14,6 +14,13 @@ namespace KonsolaPasjans.Tutorials
 		public TutorialSingleCardMoves() : base()
 		{
 			Name = "Samouczek Ruchów Kart (1/2)";
+		}
+		private void Clear()
+		{
+			_cursor = 1;
+			selection = -1;
+			firstCardSelected = false;
+			IsCompleted = false;
 			// Initialization logic if needed
 			_cardsColumns = new List<Card>[]{
 				new List<Card>()
@@ -35,17 +42,17 @@ namespace KonsolaPasjans.Tutorials
 					new Card(CardValue.Nine, CardColor.Hearts) { IsFaceUp = true }
 				}
 			};
-
 		}
 		public override void Start()
 		{
+			Clear();
 			Console.BackgroundColor = ConsoleColor.DarkGreen;
 			Console.ForegroundColor = ConsoleColor.White;
 			Console.Clear();
 			Console.WriteLine("Witaj w samouczku ruchów kart w Pasjansie (1/2)!");
-			Console.WriteLine("Aby przesunąć kursor, użyj strzałek na klawiaturze.");
+			Console.WriteLine("Użyj strzałek na klawiaturze aby przesunąć kursor");
 			Console.WriteLine("Zaznaczona karta będzie się wyświetlana po prawej");
-			//Console.WriteLine("Aby zakończyć ten samouczek, przemieść kursor przynajmniej raz w każdym kierunku lub naciśnij 'Esc'.");
+			Console.WriteLine("Zaznaczenie kart można anulować przy użyciu klawisza 'ESC'");
 			Console.WriteLine("Powodzenia!");
 			// Logic to handle movement tutorial
 			Console.ReadKey(true); // Wait for the user to press a key before starting the tutorial
@@ -57,7 +64,7 @@ namespace KonsolaPasjans.Tutorials
 					_cardsColumns[i].Last().IsFaceUp = true;
 				}
 				Draw(); // Draw the current state of the tutorial
-				var key = Console.ReadKey(true).Key;
+				ConsoleKey key = Console.ReadKey(true).Key;
 				if (key == ConsoleKey.Escape)
 				{
 					if (selection == -1)
