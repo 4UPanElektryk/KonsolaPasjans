@@ -19,9 +19,9 @@ namespace KonsolaPasjans.Ranking
 					string line;
 					while ((line = sr.ReadLine()) != null)
 					{
-						if (line.Contains(","))
+						if (line.Contains(";"))
 						{
-							string[] data = line.Split(',');
+							string[] data = line.Split(';');
 							if (data.Length == 4)
 							{
 								try
@@ -59,7 +59,7 @@ namespace KonsolaPasjans.Ranking
 			{
 				// Format: PlayerName,Moves,Date
 				string playernamesafe = Convert.ToBase64String(Encoding.UTF8.GetBytes(item.PlayerName)); // Replace commas to avoid CSV issues
-				string line = $"{playernamesafe},{item.Moves},{item.Date.ToString("yyyy-MM-dd HH:mm:ss")},{item.HardMode}";
+				string line = $"{playernamesafe};{item.Moves};{item.Date.ToString("yyyy-MM-dd HH:mm:ss")};{item.HardMode}";
 				writer.WriteLine(line);
 			}
 			writer.Close();
