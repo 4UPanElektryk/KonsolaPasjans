@@ -235,6 +235,7 @@ namespace KonsolaPasjans
 						/*int ret = ContextMenu.SummonAt(0, 0, "Card Already Selecetd!", options: new string[] { "Continue", "Cancel" } ); FullReRender = true;
 						if (ret == 1) { */
 						selection = -1; selectionCount = 0; //this.cursor = 0; //}
+						FullReRender = true;
 					}
 					else if (FindIfValidTarget())
 					{
@@ -352,7 +353,7 @@ namespace KonsolaPasjans
 		{
 			//center screen pause menu
 			Console.Clear();
-			int ret = ContextMenu.SummonAt(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 3, "Game Paused", new string[] { "Resume", "Undo Move", "Restart Game", "Exit to Main Menu" }, ConsoleColor.Yellow);
+			int ret = ContextMenu.SummonAt(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2 - 3, "Pauza Gry", new string[] { "Kontynuuj", "Cofnuj Ruch", "Od Nowa", "Wróć do Menu" }, ConsoleColor.Yellow);
 			if (ret == 1)
 			{
 				UndoMove();
@@ -507,7 +508,7 @@ namespace KonsolaPasjans
 			else if (move.To > 5)
 			{
 				// Column
-				if (move.UndoMove)
+				if (move.UndoMove && cards[move.To - 6].Count() > 0)
 				{
 					cards[move.To - 6].Last().IsFaceUp = !move.WasCardBelowCovered;
 				}
@@ -524,12 +525,16 @@ namespace KonsolaPasjans
 		{
 			if (history.Count == 0)
 			{
-				Console.WriteLine("No moves to undo.");
+				Debug.WriteLine("No moves to undo.");
 				return;
 			}
 			Move last = history.RemoveLast();
 			Move undo = last.Undo();
 			DoMove(ref undo);
+			for (int i = 0; i < DiscardPile.Count; i++)
+			{
+				DiscardPile[i].IsFaceUp = true;
+			}
 		}
 		private void MoveCard()
 		{
@@ -598,10 +603,10 @@ namespace KonsolaPasjans
 		}
 		private void DisplaySelection(int amount = 0)
 		{
-			Console.SetCursorPosition(64, 5);
+			Console.SetCursorPosition(64, 0);
 			Console.ForegroundColor = ConsoleColor.White;
 			Console.WriteLine("Wybrane Karty: ");
-			int x = 64, y = 6;
+			int x = 64, y = 1;
 			if (selection != -1)
 			{
 				for (int i = 0; i < selectionCount; i++)

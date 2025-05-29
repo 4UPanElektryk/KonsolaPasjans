@@ -10,6 +10,7 @@ namespace KonsolaPasjans
 		{
 			Ranking.RankingManager.Load();
 			Console.OutputEncoding = Encoding.UTF8;
+			Console.Title = "Pasjans Konsolowy";
 			Console.ResetColor();
 			while (true)
 			{
